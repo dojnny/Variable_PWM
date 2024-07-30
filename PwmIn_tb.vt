@@ -1,0 +1,64 @@
+// Custom testbench
+
+module PwmIn_tb(
+    
+    );
+    
+    // R stands for Bit Resolution
+    localparam R = 8;
+    localparam Timer_Bits = 8;
+    
+    reg clk, reset_n;
+    reg [R:0] duty;
+    reg [Timer_Bits - 1:0] Final_Value;
+    wire pwm_out;
+
+    // Instantiate module under test    
+    Pwm_In #(.R(R), .TimerBits(Timer_Bits)) uut (
+        .clk(clk),
+        .reset_n(reset_n),
+        .duty(duty),
+        .Final_Value(Final_Value),
+        .pwm_out(pwm_out)
+    );
+    
+    // timer
+    initial
+        #(7 * 2**R * T * 200) $stop;
+    
+    // Generate stimuli
+    
+    // Generating a clk signal
+    localparam T = 10;
+    always
+    begin
+        clk = 1'b0;
+        #(T / 2);
+        clk = 1'b1;
+        #(T / 2);
+    end
+    
+    initial
+    begin
+    	$dumpfile ("PwmIn_tb.vcd");
+    	$dumpvars (0, PwmIn_tb);
+        
+        // issue a quick reset for 2 ns
+        reset_n = 1'b0;
+        #2  
+        reset_n = 1'b1;
+        duty = 0.25 * (2**R);
+        Final_Value = 4'd14;
+        repeat(2 * 2**R * Final_Value) @(negedge clk);
+                       
+        duty = 0.5 * (2**R);
+        repeat(2 * 2**R * Final_Value) @(negedge clk);
+   
+        duty = 0.75 * (2**R);
+        repeat(2 * 2**R * Final_Value) @(negedge clk);
+        
+        
+        #50 $finish;
+    end    
+        
+endmodule
