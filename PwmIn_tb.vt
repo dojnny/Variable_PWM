@@ -1,9 +1,9 @@
 // Custom testbench
 
-module PwmIn_tb(
-    
-    );
-    
+`default_nettype none
+
+module PwmIn_tb;
+
     // R stands for Bit Resolution
     localparam R = 8;
     localparam Timer_Bits = 8;
@@ -40,25 +40,33 @@ module PwmIn_tb(
     
     initial
     begin
-    	$dumpfile ("PwmIn_tb.vcd");
-    	$dumpvars (0, PwmIn_tb);
+        $dumpfile("PwmIn_tb.vcd");
+        $dumpvars(0, PwmIn_tb);
         
-        // issue a quick reset for 2 ns
+        // Issue a quick reset for 2 ns
         reset_n = 1'b0;
         #2  
         reset_n = 1'b1;
         duty = 0.25 * (2**R);
-        Final_Value = 4'd14;
-        repeat(2 * 2**R * Final_Value) @(negedge clk);
+        Final_Value = 8'd35;
+        repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
                        
         duty = 0.5 * (2**R);
-        repeat(2 * 2**R * Final_Value) @(negedge clk);
+        repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
    
         duty = 0.75 * (2**R);
-        repeat(2 * 2**R * Final_Value) @(negedge clk);
-        
-        
-        #50 $finish;
+        repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
+
+        duty = 0.0 * (2**R);
+        repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
+
+        duty = 1.0 * (2**R);
+        repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
+
+		duty = 0;
+		repeat(256 * Final_Value) @(negedge clk);        
+        $finish;
     end    
         
 endmodule
+
