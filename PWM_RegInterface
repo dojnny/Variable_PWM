@@ -1,12 +1,12 @@
 module PWM_RegInterface (
   input                  i_clk,
   input                  i_rst,
-  input      [WIDTH-1:0] i_duty_cycle,      // New duty cycle value
+  input      [R-1:0] i_duty_cycle,      // New duty cycle value
   input                  i_duty_cycle_we,   // Write enable for duty cycle
-  input      [WIDTH-1:0] i_switch_freq,     // New switching frequency value
+  input      [R-1:0] i_switch_freq,     // New switching frequency value
   input                  i_switch_freq_we,  // Write enable for switching frequency
-  output reg [WIDTH-1:0] o_duty_cycle,      // Current duty cycle
-  output reg [WIDTH-1:0] o_switch_freq      // Current switching frequency
+  output reg [R-1:0] o_duty_cycle,      // Current duty cycle
+  output reg [R-1:0] o_switch_freq      // Current switching frequency
 );
 
   // Registers to hold current values
