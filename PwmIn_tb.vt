@@ -11,6 +11,8 @@ module PwmIn_tb;
     reg clk, reset_n;
     reg [R:0] duty;
     reg [Timer_Bits - 1:0] Final_Value;
+    reg ready;
+    wire done;
     wire pwm_out;
 
     // Instantiate module under test    
@@ -19,10 +21,12 @@ module PwmIn_tb;
         .reset_n(reset_n),
         .duty(duty),
         .Final_Value(Final_Value),
+        .ready(ready),
+        .done(done),
         .pwm_out(pwm_out)
     );
     
-    // timer
+    // Timer
     initial
         #(7 * 2**R * T * 200) $stop;
     
@@ -45,28 +49,46 @@ module PwmIn_tb;
         
         // Issue a quick reset for 2 ns
         reset_n = 1'b0;
+        ready = 1'b0;
         #2  
         reset_n = 1'b1;
         duty = 0.25 * (2**R);
         Final_Value = 8'd35;
+        ready = 1'b1;
+        @(posedge done); // Wait for done signal to assert
+        ready = 1'b0;
         repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
                        
         duty = 0.5 * (2**R);
+        ready = 1'b1;
+        @(posedge done); // Wait for done signal to assert
+        ready = 1'b0;
         repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
    
         duty = 0.75 * (2**R);
+        ready = 1'b1;
+        @(posedge done); // Wait for done signal to assert
+        ready = 1'b0;
         repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
 
         duty = 0.0 * (2**R);
+        ready = 1'b1;
+        @(posedge done); // Wait for done signal to assert
+        ready = 1'b0;
         repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
 
         duty = 1.0 * (2**R);
+        ready = 1'b1;
+        @(posedge done); // Wait for done signal to assert
+        ready = 1'b0;
         repeat(2 * 2**R * (Final_Value + 1)) @(negedge clk);
 
-		duty = 0;
-		repeat(256 * Final_Value) @(negedge clk);        
+        duty = 0;
+        ready = 1'b1;
+        @(posedge done); // Wait for done signal to assert
+        ready = 1'b0;
+        repeat(256 * Final_Value) @(negedge clk);        
         $finish;
     end    
         
 endmodule
-
