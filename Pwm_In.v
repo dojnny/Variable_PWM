@@ -6,6 +6,8 @@ module Pwm_In
     input reset_n,
     input [R:0] duty, // Control the Duty Cycle
     input [TimerBits - 1:0] Final_Value, // Control the switching frequency
+    input ready, // Signal indicating a pending write
+    output reg done, // Signal indicating the update is in effect
     output pwm_out
     );
 
@@ -18,12 +20,12 @@ module Pwm_In
     // Up Counter 
     always @(posedge clk or negedge reset_n)
     begin
-        if (!reset_n) // NB: ~ is bitswise negation, ! is boolean inversion.
+        if (!reset_n)
         begin
-        	Q_Reg <= {R{1'b1}}; // first run of timer starts at 0 which isn't taking new duty cycle value until complete value of timer done
-            //Q_Reg <= 'b0;
+            Q_Reg <= {R{1'b1}};
             D_Reg <= 1'b0;
             duty_reg <= 'b0;
+            done <= 1'b0;
         end
         else
         begin
@@ -32,16 +34,16 @@ module Pwm_In
                 Q_Reg <= Q_Next;
                 D_Reg <= D_Next;
             end
+
+            if ((Q_Next == 0) && step && ready) // Update duty_reg only when ready signal is high
+            begin
+                duty_reg <= duty; // load new duty
+                done <= 1'b1; // Indicate the update is in effect
+            end
             else
             begin
-                Q_Reg <= Q_Reg;
-                D_Reg <= D_Reg;
+                done <= 1'b0; // Reset done signal otherwise
             end
-
-            if ((Q_Next == 0) && step) // Test if the counter would overflow in this cycle, and we're being asked to update the counter
-                duty_reg <= duty; // load new duty
-            else
-                duty_reg <= duty_reg;
         end
     end
 
@@ -64,5 +66,3 @@ module Pwm_In
     );
 
 endmodule
-
-   
